@@ -22,7 +22,7 @@ DOCKER_BIN    ?= docker
 DOCKER_CMD    ?= build
 DOCKER_SUFFIX ?= 
 
-OUTPUT := $(DIST_DIR)goflow2-$(VERSION_PKG)-$(GOOS)-$(ARCH)$(EXTENSION)
+OUTPUT := $(DIST_DIR)goflow2
 
 .PHONY: proto
 proto:

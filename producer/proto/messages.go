@@ -30,6 +30,11 @@ type ProtoProducerMessage struct {
 	skipDelimiter bool // for binary marshalling, skips the varint prefix
 }
 
+// Formatter is exposed for custom rendering
+func (m *ProtoProducerMessage) Formatter() FormatterMapper {
+	return m.formatter
+}
+
 var protoMessagePool = sync.Pool{
 	New: func() any {
 		return &ProtoProducerMessage{}

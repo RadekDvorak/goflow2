@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"runtime/pprof"
 	"strconv"
 	"strings"
 	"sync"
@@ -26,6 +27,7 @@ import (
 	"github.com/netsampler/goflow2/v2/format"
 	_ "github.com/netsampler/goflow2/v2/format/binary"
 	_ "github.com/netsampler/goflow2/v2/format/json"
+	_ "github.com/netsampler/goflow2/v2/format/jsonsonic"
 	_ "github.com/netsampler/goflow2/v2/format/text"
 
 	// various transports
@@ -71,6 +73,9 @@ var (
 	MappingFile = flag.String("mapping", "", "Configuration file for custom mappings")
 
 	Version = flag.Bool("v", false, "Print version")
+
+	cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+	memprofile = flag.String("memprofile", "", "write memory profile to `file`")
 )
 
 func LoadMapping(f io.Reader) (*protoproducer.ProducerConfig, error) {
@@ -201,6 +206,18 @@ func main() {
 
 	var receivers []*utils.UDPReceiver
 	var pipes []utils.FlowPipe
+
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		defer f.Close() // error handling omitted for example
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
+	}
 
 	q := make(chan bool)
 	for _, listenAddress := range strings.Split(*ListenAddresses, ",") {
